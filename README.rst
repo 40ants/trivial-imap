@@ -67,6 +67,62 @@ messages in the Inbox.
     #<TRIVIAL-IMAP/CORE:EMAIL uid=28 subject="Другие идеи">)
    1498 (11 bits, #x5DA)
 
+Searching emails
+================
+
+There is a query language accepted by ``post-office`` library. It is
+documented in the `original Franz's documentation
+<https://franz.com/support/documentation/current/doc/imap.htm#message-search-2>`_.
+
+Here are few examples, how to use it with ``trivial-imap``.
+
+This is how to search by some header's content. In the example, it is a "Message-Id":
+
+.. code-block:: common-lisp-repl
+                
+   CL-USER> (trivial-imap:fetch-messages
+             "imap.gmail.com"
+             "svetlyak.40wt"
+             *password*
+             :folder "Autoprocessing/OrgModeInbox"
+             :query `(:header "message-id" "<5b580c2d3d0c1_64682d32c895c9@ip-172-31-1-54.ec2.internal.mail>"))
+   (#<EMAIL uid=1448 subject="Favorite tweet by @stylewarning">)
+
+Here is how you can combine search rules:
+
+.. code-block:: common-lisp-repl
+                
+   CL-USER> (trivial-imap:fetch-messages
+             "imap.gmail.com"
+             "svetlyak.40wt"
+             *password*
+             :folder "Autoprocessing/OrgModeInbox"
+             :query `(and (:from "svetlyak.40wt@gmail.com")
+                          (:sentsince "1-Oct-2018")))
+   (#<EMAIL uid=1520 subject="Найти книгу first break all the rules">
+    #<EMAIL uid=1528 subject="Lisp - oh what it could have been. It had
+    such potential, but then it got broken... | Hacker N   ews">)
+
+Here we used a date, but in a strange format, required by
+IMAP. Original post-office library also accepts a Lisp's universal timestamps,
+returned by ``get-universal-time``, but in my modified version, you can
+use more natural "2018-10-01" or ``local-time:timestamp`` and manipulate with
+dates more naturally:
+
+.. code-block:: common-lisp-repl
+                
+   CL-USER> (trivial-imap:fetch-messages
+             "imap.gmail.com"
+             "svetlyak.40wt"
+             *password*
+             :folder "Autoprocessing/OrgModeInbox"
+             :query `(and (:from "svetlyak.40wt@gmail.com")
+                          (:sentsince "2018-10-01")))
+   (#<EMAIL uid=1520 subject="Найти книгу first break all the rules">
+    #<EMAIL uid=1528 subject="Lisp - oh what it could have been. It had
+    such potential, but then it got broken... | Hacker N   ews">)
+
+    
 Ideas
 =====
 
