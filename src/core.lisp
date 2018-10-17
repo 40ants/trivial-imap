@@ -287,8 +287,10 @@
 
 (defun skip (uids skip-to-uid)
   (do ()  
-      ((> (car uids)
-           skip-to-uid) uids)
+      ((or (null uids)
+            (> (car uids)
+               skip-to-uid))
+       uids)
     (setf uids
           (cdr uids))))
 
@@ -310,7 +312,7 @@
                                                   :timeout timeout)))
     (net.post-office:select-mailbox mb folder)
     (let* ((uids (net.post-office:search-mailbox mb query :uid t))
-           (uids (if since-uid
+           (uids (if (and uids since-uid)
                      (skip uids since-uid)
                      uids))
            (total (length uids))
