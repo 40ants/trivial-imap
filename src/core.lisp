@@ -197,10 +197,13 @@
    cl-mime:decode-content return a byte vector and here
    we decode it into the unicode and normalize newlines."
   
-  (let ((charset (-> (cl-mime:get-header mime :charset)
-                     (second)
-                     (string-upcase)
-                     (make-keyword))))
+  (let* ((charset1 (-> (cl-mime:get-header mime :charset)
+                       (second)))
+         (charset (if charset1
+                      (-> charset1
+                          (string-upcase)
+                          (make-keyword))
+                    babel:*default-character-encoding*)))
     (flet ((decode-octets-if-needed (obj)
              "cl-mime:decode-content can return a string if Content-Transfer-Encoding: 7bit
             or a vector if it doesn't. We need a normal unicode text here."
